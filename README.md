@@ -1,3 +1,9 @@
+# Copied from https://github.com/microsoft/playwright-examples
+
+This repo is just for personal experiments.
+
+Original readme:
+
 # 🎭 Playwright Examples
 
 This repo is used to demonstrate various testing scenarios with [Playwright](https://playwright.dev/) 🎭 with Node.js.
