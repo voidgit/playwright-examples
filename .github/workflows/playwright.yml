@@ -13,8 +13,8 @@ jobs:
     - uses: actions/setup-node@v4
       with:
         node-version: 18
-    - name: Checking env variables (just curious)
-      run: env
+    # - name: Checking env variables (just curious)
+    #   run: env
     - name: Install dependencies
       run: npm ci
     - name: Install Playwright Browsers
