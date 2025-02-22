@@ -5,7 +5,7 @@ on:
   pull_request:
     branches: [ main ]
 jobs:
-  test:
+  sute1_run:
     timeout-minutes: 60
     # runs-on: ubuntu-22.04
     runs-on: ubuntu-latest
@@ -14,8 +14,6 @@ jobs:
     - uses: actions/setup-node@v4
       with:
         node-version: 18
-    - name: Checking env variables (just curious)
-      run: env
     - name: Install dependencies
       run: npm ci
     - name: Install Playwright Browsers
@@ -25,6 +23,47 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: playwright-report
+        name: playwright-report1
         path: playwright-report/
+        retention-days: 30
+
+  sute2_run:
+    timeout-minutes: 60
+    # runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 18
+    - name: Install dependencies
+      run: npm ci
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+    - name: Run Playwright tests
+      run: npx playwright test
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: playwright-report2
+        path: playwright-report/
+        retention-days: 30
+
+  consolidate_reports:
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download artifact 1
+      uses: actions/download-artifact@v4
+      with:
+        name: playwright-report1
+    - name: Download artifact 2
+      uses: actions/download-artifact@v4
+      with:
+        name: playwright-report2
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: playwright-report-consolidated
+        path: playwright-report*/
         retention-days: 30
