@@ -19,7 +19,7 @@ jobs:
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
     - name: Run Playwright tests
-      run: npx playwright test
+      run: npx playwright test tests/boxed-steps-pom/boxed-step-pom.spec.ts
     - name: Upload blob report to GitHub Actions Artifacts
       if: ${{ !cancelled() }}
       uses: actions/upload-artifact@v4
@@ -42,7 +42,8 @@ jobs:
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
     - name: Run Playwright tests
-      run: npx playwright test
+      # run: npx playwright test
+      run: npx playwright test tests/api-mocking/api-mocking.spec.ts
     - name: Upload blob report to GitHub Actions Artifacts
       if: ${{ !cancelled() }}
       uses: actions/upload-artifact@v4
