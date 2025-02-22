@@ -5,7 +5,7 @@ on:
   pull_request:
     branches: [ main ]
 jobs:
-  sute1_run:
+  suite1_admin_run:
     timeout-minutes: 60
     # runs-on: ubuntu-22.04
     runs-on: ubuntu-latest
@@ -20,14 +20,15 @@ jobs:
       run: npx playwright install --with-deps
     - name: Run Playwright tests
       run: npx playwright test
-    - uses: actions/upload-artifact@v4
-      if: always()
+    - name: Upload blob report to GitHub Actions Artifacts
+      if: ${{ !cancelled() }}
+      uses: actions/upload-artifact@v4
       with:
-        name: playwright-report1
-        path: playwright-report/
-        retention-days: 30
+        name: blob-report-suite1_admin_run
+        path: blob-report
+        retention-days: 1
 
-  sute2_run:
+  sute2_user_portal_run:
     timeout-minutes: 60
     # runs-on: ubuntu-22.04
     runs-on: ubuntu-latest
@@ -42,28 +43,41 @@ jobs:
       run: npx playwright install --with-deps
     - name: Run Playwright tests
       run: npx playwright test
-    - uses: actions/upload-artifact@v4
-      if: always()
+    - name: Upload blob report to GitHub Actions Artifacts
+      if: ${{ !cancelled() }}
+      uses: actions/upload-artifact@v4
       with:
-        name: playwright-report2
-        path: playwright-report/
-        retention-days: 30
+        name: blob-report-sute2_user_portal_run
+        path: blob-report
+        retention-days: 1
 
-  consolidate_reports:
-    timeout-minutes: 10
+  merge-reports:
+    # Merge reports after playwright-tests, even if some shards have failed
+    if: ${{ !cancelled() }}
+    needs: [suite1_admin_run, sute2_user_portal_run:]
+
     runs-on: ubuntu-latest
     steps:
-    - name: Download artifact 1
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: lts/*
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Download blob reports from GitHub Actions Artifacts
       uses: actions/download-artifact@v4
       with:
-        name: playwright-report1
-    - name: Download artifact 2
-      uses: actions/download-artifact@v4
+        path: all-blob-reports
+        pattern: blob-report-*
+        merge-multiple: true
+
+    - name: Merge into HTML Report
+      run: npx playwright merge-reports --reporter html ./all-blob-reports
+
+    - name: Upload HTML report
+      uses: actions/upload-artifact@v4
       with:
-        name: playwright-report2
-    - uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: playwright-report-consolidated
-        path: playwright-report*/
-        retention-days: 30
+        name: html-report--attempt-${{ github.run_attempt }}
+        path: playwright-report
+        retention-days: 14
