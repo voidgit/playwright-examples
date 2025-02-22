@@ -18,9 +18,14 @@ export default defineConfig({
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+//  https://playwright.dev/docs/test-parallel 
+  workers: process.env.CI ? 2 : undefined, 
+//   workers: undefined (default behavior)
+
+// Playwright will automatically set the number of workers to the number of logical CPU cores available on the system.
+// This ensures optimal parallelism without manual configuration.
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  reporter: process.env.CI ? 'blob' : 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
